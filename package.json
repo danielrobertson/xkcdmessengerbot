@@ -1,0 +1,17 @@
+{
+  "name": "xkcdmessengerbot",
+  "version": "1.0.0",
+  "description": "Xkcd bot for Facebook Messenger",
+  "main": "bot.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielrobertson/xkcdmessengerbot.git"
+  },
+  "dependencies": {
+  	"botkit": ">=0.1.0"
+  },
+  "devDependencies": {
+  	"localtunnel": ">=1.8.1"
+  }
+}

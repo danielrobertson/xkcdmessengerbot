@@ -1,29 +1,46 @@
-var Botkit = require('./lib/Botkit.js');
-var os = require('os');
+var express = require('express')
+var bodyParser = require('body-parser')
+var request = require('request')
+var app = express()
 
-var controller = Botkit.facebookbot({
-    debug: true,
-    access_token: process.env.page_token,
-    verify_token: process.env.verify_token
-});
+app.set('port', 3000)
 
-var bot = controller.spawn({});
+// Process application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({extended: false}))
 
-controller.setupWebserver(process.env.port || 3000, function (err, webserver) {
-    controller.createWebhookEndpoints(webserver, bot, function () {
-        console.log('ONLINE!');
-    });
-});
+// Process application/json
+app.use(bodyParser.json())
 
+// Index route
+app.get('/', function (req, res) {
+    res.send('Hello world, I am a chat bot')
+})
 
-controller.hears(['hello', 'hi'], 'message_received', function (bot, message) {
+// Facebook verification
+app.get('/webhook/', function (req, res) {
+    if (req.query['hub.verify_token'] === process.env.verify_token) {
+        res.send(req.query['hub.challenge'])
+    }
+    res.send('Error, wrong token')
+})
 
-
-    controller.storage.users.get(message.user, function (err, user) {
-        if (user && user.name) {
-            bot.reply(message, 'Hello ' + user.name + '!!');
-        } else {
-            bot.reply(message, 'Hello.');
+// proces user interaction 
+app.post('/webhook/', function (req, res) {
+    messaging_events = req.body.entry[0].messaging
+    for (i = 0; i < messaging_events.length; i++) {
+        event = req.body.entry[0].messaging[i]
+        sender = event.sender.id
+        if (event.message && event.message.text) {
+            text = event.message.text
+            console.log("User text input - " + text)
         }
-    });
-});
+    }
+    res.sendStatus(200)
+})
+
+var token = process.env.page_access
+
+// start server
+app.listen(app.get('port'), function() {
+    console.log('running on port', app.get('port'))
+})

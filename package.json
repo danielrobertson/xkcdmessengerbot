@@ -9,9 +9,7 @@
     "url": "git+https://github.com/danielrobertson/xkcdmessengerbot.git"
   },
   "dependencies": {
-  	"express": ">=4.13.4",
-  	"body-parser": "1.15.0",
-  	"request": ">=2.71.0"
+    "botkit": ">=0.1.0"
   },
   "devDependencies": {
   	"localtunnel": ">=1.8.1"

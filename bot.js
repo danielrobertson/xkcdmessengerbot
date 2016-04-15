@@ -1,46 +1,42 @@
-var express = require('express')
-var bodyParser = require('body-parser')
-var request = require('request')
-var app = express()
-
-app.set('port', 3000)
-
-// Process application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({extended: false}))
-
-// Process application/json
-app.use(bodyParser.json())
-
-// Index route
-app.get('/', function (req, res) {
-    res.send('Hello world, I am a chat bot')
+var Botkit = require('botkit');
+var controller = Botkit.facebookbot({
+        access_token: process.env.access_token,
+        verify_token: process.env.verify_token,
 })
 
-// Facebook verification
-app.get('/webhook/', function (req, res) {
-    if (req.query['hub.verify_token'] === process.env.verify_token) {
-        res.send(req.query['hub.challenge'])
-    }
-    res.send('Error, wrong token')
-})
+var bot = controller.spawn({
+});
 
-// proces user interaction 
-app.post('/webhook/', function (req, res) {
-    messaging_events = req.body.entry[0].messaging
-    for (i = 0; i < messaging_events.length; i++) {
-        event = req.body.entry[0].messaging[i]
-        sender = event.sender.id
-        if (event.message && event.message.text) {
-            text = event.message.text
-            console.log("User text input - " + text)
-        }
-    }
-    res.sendStatus(200)
-})
+// if you are already using Express, you can use your own server instance...
+// see "Use BotKit with an Express web server"
+controller.setupWebserver(3000,function(err,webserver) {
+	if(err) console.log("error - " + err); 
+  controller.createWebhookEndpoints(controller.webserver, bot, function() {
+      console.log('This bot is online!!!');
+  });
+});
 
-var token = process.env.page_access
+// this is triggered when a user clicks the send-to-messenger plugin
+controller.on('facebook_optin', function(bot, message) {
+    bot.reply(message, 'Welcome to my app!');
 
-// start server
-app.listen(app.get('port'), function() {
-    console.log('running on port', app.get('port'))
-})
+});
+
+// user said hello
+controller.hears(['hello'], 'message_received', function(bot, message) {
+	console.log("Message recieved " + message); 
+    bot.reply(message, 'Hey there.');
+
+});
+
+controller.hears(['cookies'], 'message_received', function(bot, message) {
+
+    bot.startConversation(message, function(err, convo) {
+
+        convo.say('Did someone say cookies!?!!');
+        convo.ask('What is your favorite type of cookie?', function(response, convo) {
+            convo.say('Golly, I love ' + response.text + ' too!!!');
+            convo.next();
+        });
+    });
+});

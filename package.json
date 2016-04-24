@@ -12,6 +12,10 @@
     "botkit": ">=0.1.0"
   },
   "devDependencies": {
-  	"localtunnel": ">=1.8.1"
+    "localtunnel": ">=1.8.1"
+  },
+  "scripts" : {
+    "start": "node bot.js",
+    "dev": "export $(cat tokens.env | xargs) && node bot.js"
   }
 }
